@@ -1,0 +1,37 @@
+version: '2'
+services:
+  portier-rp:
+    container_name: portier-rp
+    depends_on:
+    - portier-broker
+    image: guangie88/portier-rp
+    volumes:
+    - "./server.py:/app/server.py"
+    # ports:
+    # - "8000:8000/tcp"
+    environment:
+      # Docker containers cannot listen on 127.0.0.1 properly?
+      # DEMO_LISTEN_IP: "0.0.0.0"
+      # DEMO_WEBSITE_URL: "http://localhost:8000"
+      DEMO_BROKER_URL: "http://localhost:3333"
+    network_mode: host
+  portier-broker:
+    container_name: portier-broker
+    depends_on:
+    - redis
+    - mailhog
+    image: guangie88/portier-broker
+    volumes:
+    - "./private.pem:/private.pem"
+    - "./config.toml:/config.toml"
+    ports:
+    - "3333:3333/tcp"
+    command: ["/config.toml"]
+  redis:
+    container_name: redis
+    image: redis:4-alpine
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog
+    ports:
+    - "8025:8025/tcp"
